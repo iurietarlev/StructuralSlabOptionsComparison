@@ -1,8 +1,7 @@
-# Monte-Carlo-Simulations---Infinite-Slope-Stability
+# Structural Elements Comparison
 
-This web application developed in R programming language and deployed using shiny package via shiny.io servers. It deals with caclulation of probability failure of a an infinite slope (geotechnical problem) based on a range of input parameters. 
+This web application is developed in R programming language and deployed using shiny package via shiny.io servers. It deals with comparison of various structural materials in use for different structural elements.
 
 The web application ca be accessed via the following link: 
-https://osk849.shinyapps.io/Monte-Carlo-Simulations-Infinite-Slope-Stability/
+https://osk849.shinyapps.io/structural_elements_comparison/
 
-The user manual is also included in this repository, as well as sample csv's which were used to run the study case (also described in the user manual) and can be reproduced.

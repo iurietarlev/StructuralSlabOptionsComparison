@@ -27,9 +27,6 @@ input_type_selector_excel_dflt <- function(input_choice, excel, dflt, rc_table_t
   }
 
 
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-getwd()
-
 
 
 
@@ -55,37 +52,37 @@ interp_bh <- function(excel_file_path,x_i,y_i,method_i){
   return(z)
 }
 
-answer <- interp_bh(excel_file_path = "./single-span-one-way-slab.xlsx",x_i = 9, y_i = 6.5, method_i = "linear")
-answer
-
-    
-excel_file_path = "./single-span-one-way-slab.xlsx"
-x_i = 9
-y_i = 10
-method_i = "linear"
-original_df <- read_excel(excel_file_path)
-original_df
-
-
-z <- original_df[2:ncol(original_df)] #remove column with the name
-z
-original_df_matrix <- as.matrix(z) #transform from df into a matrix
-original_df_matrix
-
-
-original_df <- as.matrix(original_df)
-x <- as.vector(as.numeric(colnames(original_df)))[2:length(colnames(original_df))]
-x
-y <- as.vector(original_df[,1])
-y
-#x_i <- 4.67
-#y_i <- 400
-z <- interp2(x, y, original_df_matrix, 
-             x_i, y_i, method_i)
-z  
-  
-
-
+# answer <- interp_bh(excel_file_path = "./single-span-one-way-slab.xlsx",x_i = 9, y_i = 6.5, method_i = "linear")
+# answer
+# 
+#     
+# excel_file_path = "./single-span-one-way-slab.xlsx"
+# x_i = 9
+# y_i = 10
+# method_i = "linear"
+# original_df <- read_excel(excel_file_path)
+# original_df
+# 
+# 
+# z <- original_df[2:ncol(original_df)] #remove column with the name
+# z
+# original_df_matrix <- as.matrix(z) #transform from df into a matrix
+# original_df_matrix
+# 
+# 
+# original_df <- as.matrix(original_df)
+# x <- as.vector(as.numeric(colnames(original_df)))[2:length(colnames(original_df))]
+# x
+# y <- as.vector(original_df[,1])
+# y
+# #x_i <- 4.67
+# #y_i <- 400
+# z <- interp2(x, y, original_df_matrix, 
+#              x_i, y_i, method_i)
+# z  
+#   
+# 
+# 
 
 
 

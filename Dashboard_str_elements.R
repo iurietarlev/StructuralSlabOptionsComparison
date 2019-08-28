@@ -4,13 +4,9 @@
 # getwd()
 
 library(shiny)          #shiny allows tranlation of R script into HTML
-library(ggplot2)        #ggplot for plotting graphs and histograms
-library(evd)            #for extreme value distributions (gumbel)
-library(ggpubr)         #used for ggarrange
-library(pracma)         #practical math for deg2rad
-library(expss)          #used for count_if
-library(shinydashboard) #shiny dashboard builder
-library(plotly)         #for plotting interactive plots
+library(pracma)         #library for bi-linear interpolation fucntion
+library(shinydashboard, warn.conflicts = FALSE) #shiny dashboard builder
+#library(plotly)         #for plotting interactive plots
 library(readxl)         #library for reading excel files
 
 
@@ -40,7 +36,7 @@ sidebarpanel_width = 12
 
 #UI PART OF THE SCRIPT
 ui <- dashboardPage(skin = "yellow", # yellow color of the header
-  dashboardHeader(title = "Structural Material Comparison", titleWidth = 480,
+  dashboardHeader(title = "Structural Material Comparison", titleWidth = 350,
                   tags$li(div(img(src = 'BH LOGO.pdf',
                                   title = "Company Home", height = "40px"),
                               style = "padding-top:5px; padding-bottom:5px;
