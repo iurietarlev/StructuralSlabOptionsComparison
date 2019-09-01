@@ -10,21 +10,20 @@
 
 # Function for different output depending on the selected radio_button
 # it shows csv input when csv button is selected and mean and sd input when other type of data is selected
-input_type_selector_excel_dflt <- function(input_choice, excel, dflt, rc_table_tag,
-                                           hollowcore_table_tag, clt_table_tag)
-  {
-  if (input_choice == excel) {
-    list(
-      fileInput(inputId = rc_table_tag, label = "RC Slab - load spab table", accept = ".xlsx"),
-      fileInput(inputId = hollowcore_table_tag, label = "Hollowcore - looad span table", accept = ".xlsx"),
-      fileInput(inputId = clt_table_tag, label = "CLT - load span table", accept = ".xlsx")
-      )
-    
+input_type_selector_excel_dflt_rc <- function(slab_type_id, slab_type_rb_title, ss_ow_sb,
+                                           ms_ow_sb, ms_flt_sb){
+      radioButtons(inputId=slab_type_id, label=slab_type_rb_title, choices=c(ss_ow_sb, ms_ow_sb, ms_flt_sb), 
+                 selected = ss_ow_sb)
   }
-  else {
-    
-  }
-  }
+
+
+# input_type_selector_excel_dflt <- function(input_choice, excel, dflt, table_tag)
+# {
+#   if (isTRUE(input_choice == excel)) {
+#     fileInput(inputId = table_tag, label = "Upload a load span table", accept = ".xlsx")
+#   }
+# }
+
 
 
 
@@ -35,7 +34,7 @@ input_type_selector_excel_dflt <- function(input_choice, excel, dflt, rc_table_t
 
 
 
-#-------INTERPOLATION FUNCTION--------
+#-------INTERPOLATION FUNCTION FOR EXCEL --------
 interp_bh <- function(excel_file_path,x_i,y_i,method_i){
   
   original_df <- read_excel(excel_file_path)
@@ -47,42 +46,107 @@ interp_bh <- function(excel_file_path,x_i,y_i,method_i){
   original_df <- as.matrix(original_df)
   x <- as.vector(as.numeric(colnames(original_df)))[2:length(colnames(original_df))]
   y <- as.vector(original_df[,1])
+  
+  if (isTRUE(x_i==max(x))){
+    x_i <- x_i - 1e-10
+  }
+  
   z <- interp2(x, y, original_df_matrix, 
                x_i, y_i, method_i)
   return(z)
 }
 
-# answer <- interp_bh(excel_file_path = "./single-span-one-way-slab.xlsx",x_i = 9, y_i = 6.5, method_i = "linear")
-# answer
-# 
-#     
-# excel_file_path = "./single-span-one-way-slab.xlsx"
-# x_i = 9
-# y_i = 10
-# method_i = "linear"
-# original_df <- read_excel(excel_file_path)
-# original_df
-# 
-# 
-# z <- original_df[2:ncol(original_df)] #remove column with the name
-# z
-# original_df_matrix <- as.matrix(z) #transform from df into a matrix
-# original_df_matrix
-# 
-# 
-# original_df <- as.matrix(original_df)
-# x <- as.vector(as.numeric(colnames(original_df)))[2:length(colnames(original_df))]
-# x
-# y <- as.vector(original_df[,1])
-# y
-# #x_i <- 4.67
-# #y_i <- 400
-# z <- interp2(x, y, original_df_matrix, 
-#              x_i, y_i, method_i)
-# z  
-#   
-# 
-# 
+#-------INTERPOLATION FUNCTION FOR DEFAULT VALUES --------
+interp_bh_dflt <- function(original_df,x_i,y_i,method_i){
+  
+  z <- original_df[2:ncol(original_df)] #remove column with the name
+  original_df_matrix <- data.matrix(z) #transform from df into a matrix
+  
+  original_df <- as.matrix(original_df)
+  x1 <- as.vector(as.numeric(colnames(original_df)))[2:length(colnames(original_df))]
+  y1 <- as.numeric(as.vector(original_df[,1]))
+  
+  if (isTRUE(x_i==max(x1))){
+    
+    x_i <- x_i - 1e-10
+  }
+  
+  z <- interp2(x = x1, y = y1, Z = original_df_matrix, 
+               x_i, y_i, method_i)
+  #print(original_df_matrix)
+  return(z)
+}
+
+# select the table for a single parameter only
+masking_rc_slab <- function(dfi, parameteri){
+  mask = dfi$parameter==parameteri
+  df_selection <- dfi[which(mask), ]
+  df_selection <- df_selection[,2:length(df_selection[1,])]
+  return(df_selection)
+}
 
 
+  
+# getting RC parameters
+get_depth <- function(dataframe, span_length, imposed_loading){
+  depth_df <- masking_rc_slab(dataframe, "depth")
+  depth <- interp_bh_dflt(depth_df, x_i = span_length, y_i = imposed_loading, method_i = "linear")
+  return(depth)
+  }
+  
+get_reinf_pm2 <- function(dataframe, span_length, imposed_loading){
+  reinf_pm2_df <- masking_rc_slab(dataframe, "reinf_pm2")
+  reinf_pm2 <- interp_bh_dflt(reinf_pm2_df, x_i = span_length, y_i = imposed_loading, method_i = "linear")
+  return(reinf_pm2)
+}
 
+get_reinf_pm3 <- function(dataframe,  span_length, imposed_loading){
+  reinf_pm3_df <- masking_rc_slab(dataframe, "reinf_pm3")
+  reinf_pm3 <- interp_bh_dflt(reinf_pm3_df, x_i = span_length, y_i = imposed_loading, method_i = "linear")
+  return(reinf_pm3)
+}
+
+# getting SPAN parameters
+get_span <- function(dataframe,  depth_slab, imposed_loading){
+  df <- masking_rc_slab(dataframe, "span")
+  df_span <- interp_bh_dflt(df, x_i = imposed_loading, y_i = depth_slab , method_i = "linear")
+  return(df_span)
+}
+
+# getting SPAN parameters
+get_il <- function(dataframe,  sdll, ill){
+  df <- masking_rc_slab(dataframe, "il")
+  df_span <- interp_bh_dflt(df, x_i = sdll, y_i = ill  , method_i = "linear")
+  return(df_span)
+}
+
+
+color.picker <- function(x,y,z){
+  if(x <= y & x <= z  ){return("green")}
+  else if( x <= y & x >= z  ){return("yellow")}
+  else if( x <= z & x >= y  ){return("yellow")}
+  else {return("red")}
+}
+
+
+# ll<-readRDS(file = "sdl_to_il_table.rds" )
+# get_il(ll, sdll =1, ill = 10)
+
+
+# library(plotly)
+# library(Hmisc)
+# 
+# # Get Manufacturer
+# mtcars$manuf <- sapply(strsplit(rownames(mtcars), " "), "[[", 1)
+# 
+# p <- mtcars %>%
+#   group_by(manuf) %>%
+#   summarize(count = n()) %>%
+#   plot_ly(labels = ~manuf, values = ~count) %>%
+#   add_pie(hole = 0.6) %>%
+#   layout(title = "Donut charts using Plotly",  showlegend = F,
+#          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
+#          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
+# 
+# 
+# 
