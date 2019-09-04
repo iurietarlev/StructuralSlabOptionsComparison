@@ -5,9 +5,9 @@ account: osk849
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1124446
-bundleId: 2375093
+bundleId: 2382297
 url: https://osk849.shinyapps.io/structural_elements_comparison/
-when: 1567341672.61101
+when: 1567541521.36246
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .RData|~$hollowcore-load-span-table.xlsx|~$single-span-one-way-slab reinforcement_pm2.xlsx|BH LOGO.pdf|CLT-load-span-table.xlsx|creating_load_span_table_rds_database.R|hollowcore-load-span-table.xlsx|multiple-span-flat-slab reinforcement_pm2.xlsx|multiple-span-flat-slab reinforcement_pm3.xlsx|multiple-span-flat-slab.xlsx|multiple-span-one-way-slab reinforcement_pm2.xlsx|multiple-span-one-way-slab reinforcement_pm3.xlsx|multiple-span-one-way-slab.xlsx|README.md|sdl_to_il.xlsx|single-span-one-way-slab reinforcement_pm2.xlsx|single-span-one-way-slab reinforcement_pm3.xlsx|single-span-one-way-slab.xlsx
+ignoredFiles: .RData|BH LOGO.pdf|README.md|Excel-load-span-tables

@@ -10,11 +10,11 @@
 
 # Function for different output depending on the selected radio_button
 # it shows csv input when csv button is selected and mean and sd input when other type of data is selected
-input_type_selector_excel_dflt_rc <- function(slab_type_id, slab_type_rb_title, ss_ow_sb,
-                                           ms_ow_sb, ms_flt_sb){
-      radioButtons(inputId=slab_type_id, label=slab_type_rb_title, choices=c(ss_ow_sb, ms_ow_sb, ms_flt_sb), 
-                 selected = ss_ow_sb)
-  }
+# input_type_selector_excel_dflt_rc <- function(slab_type_id, slab_type_rb_title, ss_ow_sb,
+#                                            ms_ow_sb, ms_flt_sb){
+#       radioButtons(inputId=slab_type_id, label=slab_type_rb_title, choices=c(ss_ow_sb, ms_ow_sb, ms_flt_sb), 
+#                  selected = ss_ow_sb)
+#   }
 
 
 # input_type_selector_excel_dflt <- function(input_choice, excel, dflt, table_tag)
@@ -122,9 +122,9 @@ get_il <- function(dataframe,  sdll, ill){
 
 
 color.picker <- function(x,y,z){
-  if(x <= y & x <= z  ){return("green")}
-  else if( x <= y & x >= z  ){return("yellow")}
-  else if( x <= z & x >= y  ){return("yellow")}
+  if(isTRUE(x <= y & x <= z ) ){return("green")}
+  else if( isTRUE(x <= y & x >= z ) ){return("yellow")}
+  else if( isTRUE(x <= z & x >= y ) ){return("yellow")}
   else {return("red")}
 }
 
