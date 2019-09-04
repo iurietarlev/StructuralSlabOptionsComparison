@@ -1,37 +1,8 @@
 
 #rm(list=ls())
 
-# setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-# getwd()
-
-
-
-
-
-# Function for different output depending on the selected radio_button
-# it shows csv input when csv button is selected and mean and sd input when other type of data is selected
-# input_type_selector_excel_dflt_rc <- function(slab_type_id, slab_type_rb_title, ss_ow_sb,
-#                                            ms_ow_sb, ms_flt_sb){
-#       radioButtons(inputId=slab_type_id, label=slab_type_rb_title, choices=c(ss_ow_sb, ms_ow_sb, ms_flt_sb), 
-#                  selected = ss_ow_sb)
-#   }
-
-
-# input_type_selector_excel_dflt <- function(input_choice, excel, dflt, table_tag)
-# {
-#   if (isTRUE(input_choice == excel)) {
-#     fileInput(inputId = table_tag, label = "Upload a load span table", accept = ".xlsx")
-#   }
-# }
-
-
-
-
-
-
-#install.packages("readxl")
-#install.packages("pracma")
-
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#getwd()
 
 
 #-------INTERPOLATION FUNCTION FOR EXCEL --------
@@ -129,24 +100,3 @@ color.picker <- function(x,y,z){
 }
 
 
-# ll<-readRDS(file = "sdl_to_il_table.rds" )
-# get_il(ll, sdll =1, ill = 10)
-
-
-# library(plotly)
-# library(Hmisc)
-# 
-# # Get Manufacturer
-# mtcars$manuf <- sapply(strsplit(rownames(mtcars), " "), "[[", 1)
-# 
-# p <- mtcars %>%
-#   group_by(manuf) %>%
-#   summarize(count = n()) %>%
-#   plot_ly(labels = ~manuf, values = ~count) %>%
-#   add_pie(hole = 0.6) %>%
-#   layout(title = "Donut charts using Plotly",  showlegend = F,
-#          xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-#          yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-# 
-# 
-# 

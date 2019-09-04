@@ -5,6 +5,17 @@
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 #getwd()
 
+
+# INSTALL ALL THE REQUIRED PACKAGES
+# install.packages("shiny")
+# install.packages("pracma")
+# install.packages("shinydashboard")
+# install.packages("readxl")
+# install.packages("ggplot2")
+# install.packages("dplyr")
+
+
+# LOAD ALL THE REQUIRED LIBRARIES
 library(shiny)          #shiny allows tranlation of R script into HTML
 library(pracma)         #library for bi-linear interpolation fucntion
 library(shinydashboard, warn.conflicts = FALSE) #shiny dashboard builder
@@ -25,15 +36,7 @@ choice_label_rc <- "RC load-span table input type"
 choice_label_hollowcore <- "Hollowcore load-span table input type"
 choice_label_clt <- "CLT load-span table input type"
 
-
-
-
-tabs_panel_title <- "Probability Paper"
-width_tab_box_prob_paper <- 12
-#height_tab_box_prob_paper <- "350px"
-
-distributions_list <- c("", "Uniform", "Normal", "Lognormal", "Gumbel")
-sidebarpanel_width = 12
+#sidebarpanel_width = 12
 
 
 ss_ow_sb_text = "single span one way slab"
@@ -41,6 +44,13 @@ ms_ow_sb_text = "multiple span one way slab"
 ms_flt_sb_text = "multiple span flat slab"
 
 
+#value boxes names
+depth_vb_name = "mm (total depth)"
+co2_vb_name = "kgCO2e/m^2"
+mass_vb_name = "kg/m^2"
+
+#color scheme for the donut charts
+mycols <- c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF")
 
 #UI PART OF THE SCRIPT
 ui <- dashboardPage(skin = "yellow", # yellow color of the header
@@ -56,12 +66,9 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
                         border-left-color: #ff0000;
                       }")),
       #adds scroll bar only for the sidebar panel
-      tags$head(
-        tags$style(HTML(".sidebar {
-                        height: 100vh; overflow-y: auto;
-                        }"
+      tags$head(tags$style(HTML(".sidebar {height: 100vh; overflow-y: auto;}"
                ) # close HTML       
-        )            # close tags$style
+        ) # close tags$style
         ), 
       sidebarMenu(
         #----------------- number of iterations ----------------
@@ -85,7 +92,7 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
     
   dashboardBody(
     fluidRow(
-      box(title = "RC Slab", width = 4,
+      box(title = "RC Slab", width = 4, collapsible = TRUE,
           sliderInput(inputId = "il_rc", label = "Imposed Loading (kN/m^2)", value = 4, min = 2.5, max = 7.5, step = 0.1),  
           numericInput(inputId = "sdl_rc", label = "Superimposed Dead Loading (kN/m^2)", value = 1.5, min = 1.5, max = 4, step = 0.1),
           numericInput(inputId = "span_rc", label = "Span (m)", value = 6.9, min = 4, max = 10, step = 0.1),
@@ -99,20 +106,22 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
           numericInput(inputId = "rc_concrete_co2", label = "Concrete Embodied Carbon (kgCO2/kg)", value = 0.149, min = 0, max = 5, step = 0.001),
           numericInput(inputId = "rc_reinf_co2", label = "Rebar Embodied Carbon (kgCO2/kg)", value = 0.95, min = 0, max = 5, step = 0.001)),
 
-      box(title = "Hollowcore Slab", width = 4,
+      box(title = "Hollowcore Slab", width = 4, collapsible = TRUE,
           sliderInput(inputId = "il_hollowcore", label = "Imposed Loading (kN/m^2)", value = 4, min = 2.5, max = 7.5, step = 0.1),
           helpText("Superimposed Dead Loading (kN/m^2)"),
           verbatimTextOutput(outputId = "sdl_hollowcore", placeholder = T),
           helpText("Span (m)"),
           verbatimTextOutput(outputId = "span_hollowcore", placeholder = T),
           selectInput(inputId = "depth_hollowcore", label = "Depth of slab (mm)", selected = 150, choices = c(150,200,250,260,300,350,400,450)),
+          numericInput(inputId = "topping_thickness", label = "Topping thickness (mm)", value = 50, min = 25, max = 150, step = 5),
           numericInput(inputId = "rods_qt", label = "Number of 12.5mm diameter tension rods:", value = 12, min = 2, max = 100, step = 2),
-          numericInput(inputId = "hc_concrete_density", label = "Concrete Density (kg/m^3)", value = 2500, min = 2000, max = 3000, step = 50),
+          numericInput(inputId = "topping_concrete_density", label = "Topping Concrete Density (kg/m^3)", value = 2500, min = 2000, max = 3000, step = 50),
           numericInput(inputId = "rods_density", label = "Tension Rods Density (kg/m^3)", value = 7800, min = 7000, max = 10000, step = 50),
-          numericInput(inputId = "hc_concrete_co2", label = "Concrete Embodied Carbon (kgCO2/kg)", value = 0.172, min = 0, max = 5, step = 0.001),
+          numericInput(inputId = "hc_precast_concrete_co2", label = "Precast Concrete Embodied Carbon (kgCO2/kg)", value = 0.172, min = 0, max = 5, step = 0.001),
+          numericInput(inputId = "hc_topping_concrete_co2", label = "Topping Concrete Embodied Carbon (kgCO2/kg)", value = 0.149, min = 0, max = 5, step = 0.001),
           numericInput(inputId = "hc_rods_co2", label = "Tension Rods Embodied Carbon (kgCO2/kg)", value = 2.27, min = 0, max = 5, step = 0.001)),
       
-      box(title = "CLT SLab",width = 4,
+      box(title = "CLT SLab",width = 4, collapsible = TRUE,
           sliderInput(inputId = "il_clt", label = "Imposed Loading (kN/m^2)", value = 4, min = 2.5, max = 7.5, step = 0.1),
           helpText("Superimposed Dead Loading (kN/m^2)"),
           verbatimTextOutput(outputId = "sdl_clt", placeholder = T),
@@ -125,15 +134,13 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
           
     )),
     fluidRow(
-      box(title = "RC Slab - Mass Distribution", width = 4,
-          #verbatimTextOutput(outputId = "ec_rc", placeholder = T),
+      box(title = "RC Slab - Mass Distribution", width = 4, collapsible = TRUE,
           plotOutput("rc_mass_donut")),
-      box(title = "Hollowcore - Mass Distribution", width = 4,
-          #verbatimTextOutput(outputId = "ec_rc", placeholder = T),
+      box(title = "Hollowcore Slab - Mass Distribution", width = 4, collapsible = TRUE,
           plotOutput("hc_mass_donut")),
-      box(title = "CLT - Mass Distribution", width = 4,
-          #verbatimTextOutput(outputId = "ec_rc", placeholder = T),
+      box(title = "CLT - Mass Distribution", width = 4, collapsible = TRUE,
           plotOutput("clt_mass_donut"))),
+    
     fluidRow(
       valueBoxOutput("rc_mass_value", width = 4),
       valueBoxOutput("hc_mass_value", width = 4),
@@ -141,26 +148,13 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
     
     
     fluidRow(
-      box(title = "RC - Embodied Carbon Distribution", width = 4,
-      #verbatimTextOutput(outputId = "ec_rc", placeholder = T),
+      box(title = "RC - Embodied Carbon Distribution", width = 4, collapsible = TRUE,
       plotOutput("rc_donut")),
-      box(title = "Hollowcore - Embodied Carbon Distribution", width = 4,
-        #verbatimTextOutput(outputId = "ec_rc", placeholder = T),
+      box(title = "Hollowcore Slab - Embodied Carbon Distribution", width = 4, collapsible = TRUE,
         plotOutput("hc_donut")),
-      box(title = "CLT - Embodied Carbon Distribution", width = 4,
-          #verbatimTextOutput(outputId = "ec_rc", placeholder = T),
+      box(title = "CLT - Embodied Carbon Distribution", width = 4, collapsible = TRUE,
           plotOutput("clt_donut"))),
     
-    
-    
-          # sliderInput(inputId = "il_rc", label = "Imposed Loading (kN/m^2)", value = 4, min = 2.5, max = 7.5, step = 0.1),  
-          # sliderInput(inputId = "sdl_rc", label = "Superimposed Dead Loading (kN/m^2)", value = 1.5, min = 1, max = 4, step = 0.1),
-          # numericInput(inputId = "span_rc", label = "Span (m)", value = 9, min = 4, max = 10, step = 0.1),
-          # helpText("Depth of slab (mm)"),
-          # verbatimTextOutput(outputId = "depth", placeholder = T),
-          # 
-          # helpText("Reinforcement quantity (kg/m^2  |  kg/m^3)"),
-          # verbatimTextOutput(outputId = "reinf_qt", placeholder = T))
     fluidRow(
       valueBoxOutput("rc_co2_value", width = 4),
       valueBoxOutput("hc_co2_value", width = 4),
@@ -179,7 +173,11 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
 #SERVER PART OF THE SCRIPT
 server <- function(input, output, session) {
   
+  # -------------------------------------------------------------------------------------------------------
   # ------------------ CALCULATION OF DEPFTH FOR RC AND SPAN FOR HC&CLT FROM LOAD SPAN TABLES -------------
+  # -------------------------------------------------------------------------------------------------------
+  
+  # >> --- RC --- <<
   
   rc_depth_reinf <- reactive({
     
@@ -190,15 +188,13 @@ server <- function(input, output, session) {
     #select the relevant load-span table
     if (isTRUE(input$slab_type == ss_ow_sb_text)){
       df <- readRDS(file = "./rc_single_span_one_way_slab_tables.rds" )
-    }
+      }
     else if (isTRUE(input$slab_type == ms_ow_sb_text)){
       df <- readRDS(file = "./rc_multiple_span_one_way_slab_tables.rds" )
-      
-    }
-    else {
+      } 
+    else { 
       df <- readRDS(file = "./rc_multiple_span_flat_slab_tables.rds" )
-      
-    }
+      }
     
     rc_depth <- get_depth(df,  span_length = input$span_rc, imposed_loading = il_corrected)
     reinf_pm2 <- get_reinf_pm2(df,  span_length = input$span_rc , imposed_loading = il_corrected)
@@ -256,136 +252,135 @@ server <- function(input, output, session) {
   output$sdl_clt = renderText("1.0")
   
   
-  # ----------------- CALCULATION OF MASS AND CO2 VALUES --------------------
   
-  # hollowcore emass and co2
-  mass_hc <- reactive({
-    A_one_rod <- 93/(1000^2) #area of a single 12.5mm diameter rod in m
-    volume_rods_pm2 <- as.numeric(input$rods_qt)*(A_one_rod)
-    mass_kg_rods_pm2 <- volume_rods_pm2*as.numeric(input$rods_density)
+  
+  # --------------------------------------------------------------------------
+  # ----------------- LISTS OF DEPTH, MASS AND CO2 VALUES --------------------
+  # --------------------------------------------------------------------------
+  
+  all_depth_mass_co2 <- reactive({
+    
+    # -------- rc depth, mass & co2 values --------
+    rc_depth_reinf <- rc_depth_reinf()
+    rc_depth <- rc_depth_reinf$a
+    rc_reinf_pm2 <- rc_depth_reinf$b
+    
+    rc_concrete_mass_pm2 <- (((1*1*rc_depth/1000)*input$rc_concrete_density) - (rc_reinf_pm2/input$rebar_density*input$rc_concrete_density))
+    rc_total_mass <- rc_concrete_mass_pm2 + rc_reinf_pm2
+    
+    rc_concrete_co2_pm2 <- rc_concrete_mass_pm2*input$rc_concrete_co2
+    rc_reinf_co2_pm2 <- input$rc_reinf_co2*rc_reinf_pm2
+    
+    rc_total_co2_pm2 <- rc_concrete_co2_pm2 + rc_reinf_co2_pm2
+    
+    
+    
+    # -------- hc depth, mass & co2 values --------
+    A_one_rod <- 93/(1000^2) #area of a single 12.5mm diameter rod (from an FPMccan Calc from Matthew Caldwell) in m
+    volume_rods_pm2 <- input$rods_qt*(A_one_rod)
+    hc_rods_mass_pm2 <- volume_rods_pm2*input$rods_density
+    #print(hc_rods_mass_pm2)
+    
     
     sw_thck_df <- data.frame("depth" = c(150,200,250,260,300,350,400,450), 
-                    "selfweight_kN_pm2" = c(2.36,2.98,3.62,3.47,3.99,4.53,5.15,5.46))
-    
-    mask = sw_thck_df$depth==as.numeric(input$depth_hollowcore)
+                             "selfweight_kN_pm2" = c(2.36,2.98,3.62,3.47,3.99,4.53,5.15,5.46)) #from FPMccan hollowcore tables
+    mask = sw_thck_df$depth == input$depth_hollowcore
     df_selection <- sw_thck_df[which(mask), ]
-    #hc_kg_pm2 <- as.numeric(df_selection[2])*1000/9.81
-    hc_kg_pm2 <- (as.numeric(df_selection[2])*1000/9.81) # total hollowcore mass using info from fpmccan website
-    # print(hc_kg_pm2)
-    # print(mass_kg_rods_pm2)
     
-    
-    mass_kg_hc <- hc_kg_pm2 - mass_kg_rods_pm2 # concrete mass for hollowcore
-    #print(mass_kg_hc)
+    hc_total_mass_pm2 <- (as.numeric(df_selection$selfweight_kN_pm2)*1000/9.81) + 
+      ((input$topping_thickness)/1000)*(input$topping_concrete_density)# total hollowcore mass + topping 
+    hc_concrete_mass_pm2 <- hc_total_mass_pm2 - hc_rods_mass_pm2 # concrete mass for hollowcore
 
     
-    values <- list(mass_kg_rods_pm2 = mass_kg_rods_pm2, mass_kg_hc = mass_kg_hc, total_hc_mass = mass_kg_hc)
-   
+    
+    hc_rods_co2_pm2 <- input$hc_rods_co2*hc_rods_mass_pm2
+    hc_concrete_co2_pm2 <- (input$hc_precast_concrete_co2)*hc_concrete_mass_pm2
+    hc_total_co2_pm2 <- hc_concrete_co2_pm2 + hc_rods_co2_pm2
+
+    
+    # -------- clt depth, mass & co2 values --------
+    clt_depth <- as.numeric(input$depth_clt)
+    clt_co2 <- as.numeric(input$clt_co2)
+    clt_density <- as.numeric(input$clt_density)
+    clt_co2_pm2 <- round((1*1*clt_depth/1000)*clt_co2*clt_density)
+    mass_clt <- (1*1*clt_depth/1000)*clt_density
+    
+
+    values <- list(
+                   #storing all rc slab variables
+                   rc_depth = rc_depth , rc_conc_mass = rc_concrete_mass_pm2 , 
+                   rc_reinf_mass = rc_reinf_pm2, rc_total_mass = rc_total_mass,
+                   rc_conc_co2 = rc_concrete_co2_pm2, rc_reinf_co2 = rc_reinf_co2_pm2,
+                   rc_total_co2 = rc_total_co2_pm2,
+                   
+                   #storing all hc slab variables
+                   hc_depth = input$depth_hollowcore, hc_conc_mass = hc_concrete_mass_pm2 , 
+                   hc_rods_mass = hc_rods_mass_pm2, hc_total_mass = hc_total_mass_pm2,
+                   hc_conc_co2 = hc_concrete_co2_pm2, hc_rods_co2 = hc_rods_co2_pm2,
+                   hc_total_co2 = hc_total_co2_pm2,
+                   
+                   #storing all clt slab variables
+                   clt_depth = clt_depth, clt_total_mass = mass_clt, clt_total_co2 = clt_co2_pm2
+                   
+                   )
     values
   })
   
-  # RC emass and co2
-  co2_rc <- reactive({
-    req(rc_depth_reinf())
-    values <- rc_depth_reinf()
-    rc_depth <- values$a
-    reinf_pm2 <- values$b
-
-    rc_concrete_mass_kg <- (((1*1*rc_depth/1000)*as.numeric(input$rc_concrete_density)) - (reinf_pm2/as.numeric(input$rebar_density)*as.numeric(input$rc_concrete_density)))
-    #print(rc_concrete_mass_kg)
-    
-    rc_concrete_co2_pm2 <- rc_concrete_mass_kg*input$rc_concrete_co2
-    rc_reinf_co2_pm2 <- input$rc_reinf_co2*reinf_pm2
-    
-    print(rc_concrete_mass_kg)
-    print(reinf_pm2)
-    
-    
-    rc_total_co2 <- round(rc_concrete_co2_pm2 + rc_reinf_co2_pm2)
-    
-    values <- list(mass_c = rc_concrete_mass_kg, mass_reinf = reinf_pm2,  rc_concrete_co2_pm2 = rc_concrete_co2_pm2, 
-                   rc_reinf_co2_pm2 = rc_reinf_co2_pm2, rc_total_co2 = rc_total_co2)
-    values
-  })
   
   conditional_colours <- reactive({
     
     #rc
-    rc_depth_values <- rc_depth_reinf()
-    rc_depth <- rc_depth_values$a
-    
-    values_rc <- co2_rc()
-    mass_c <- values_rc$mass_c
-    mass_reinf <- values_rc$mass_reinf
-    rc_mass_total <- mass_c + mass_reinf
-    #print(mass_reinf)
-    
-    rc_concrete_co2_pm2 <- values_rc$rc_concrete_co2_pm2
-    rc_reinf_co2_pm2 <- values_rc$rc_reinf_co2_pm2
-    rc_co2 <- rc_concrete_co2_pm2 + rc_reinf_co2_pm2
+    values_rc <- all_depth_mass_co2()
+    rc_depth <- values_rc$rc_depth
+    rc_mass_total <- values_rc$rc_total_mass
+    rc_co2 <- values_rc$rc_total_co2
     
     #hc
-    hc_depth <- as.numeric(input$depth_hollowcore)
-    values_hc <- mass_hc()
-    mass_rods <- values_hc$mass_kg_rods_pm2 
-    mass_hc <- values_hc$mass_kg_hc 
-    hc_mass_total <- mass_hc + mass_hc
-    
-    rods_co2_pm2 <- as.numeric(input$hc_rods_co2)*mass_rods
-    hc_co2_pm2 <- as.numeric(input$hc_concrete_co2)*mass_hc
-    hc_co2 <- hc_co2_pm2 + rods_co2_pm2
+    values_hc <- all_depth_mass_co2()
+    hc_depth <- values_hc$hc_depth
+    hc_mass_total <- values_hc$hc_total_mass
+    hc_co2 <- values_hc$hc_total_co2
     
     #clt
-    depth_ <- as.numeric(input$depth_clt)
-    co2_<- as.numeric(input$clt_co2)
-    density_ <- as.numeric(input$clt_density)
-    clt_co2_pm2 <- round((1*1*depth_/1000)*co2_*density_)
-    mass_clt <- (1*1*depth_/1000)*density_
+    values_hc <- all_depth_mass_co2()
+    clt_depth <- values_hc$clt_depth
+    clt_mass_total <- values_hc$clt_total_mass
+    clt_co2 <- values_hc$clt_total_co2
     
-    
-    rc_depth_col <- color.picker(rc_depth, hc_depth, depth_)
-    hc_depth_col <- color.picker(hc_depth, rc_depth, depth_)
-    clt_depth_col <- color.picker(depth_, rc_depth, hc_depth)
+    #rc colours
+    rc_depth_col <- color.picker(rc_depth, hc_depth, clt_depth)
+    hc_depth_col <- color.picker(hc_depth, rc_depth, clt_depth)
+    clt_depth_col <- color.picker(clt_depth, rc_depth, hc_depth)
 
-    rc_mass_col <- color.picker(rc_mass_total, hc_mass_total, mass_clt)
-    hc_mass_col <- color.picker(hc_mass_total, rc_mass_total, mass_clt)
-    clt_mass_col <- color.picker(mass_clt, rc_mass_total, hc_mass_total)
+    #hc colours
+    rc_mass_col <- color.picker(rc_mass_total, hc_mass_total, clt_mass_total)
+    hc_mass_col <- color.picker(hc_mass_total, rc_mass_total, clt_mass_total)
+    clt_mass_col <- color.picker(clt_mass_total, rc_mass_total, hc_mass_total)
     
-    rc_co2_col <- color.picker(rc_co2,hc_co2,clt_co2_pm2)
-    hc_co2_col <- color.picker(hc_co2,rc_co2,clt_co2_pm2)
-    clt_co2_col <- color.picker(clt_co2_pm2,hc_co2,rc_co2)
+    #clt colours
+    rc_co2_col <- color.picker(rc_co2,hc_co2,clt_co2)
+    hc_co2_col <- color.picker(hc_co2,rc_co2,clt_co2)
+    clt_co2_col <- color.picker(clt_co2,hc_co2,rc_co2)
     
-    
+    #store the colours in a list to be used by valueboxes
     values <- list(rc_depth_col, hc_depth_col, clt_depth_col, 
                    rc_mass_col, hc_mass_col, clt_mass_col,
                    rc_co2_col, hc_co2_col, clt_co2_col)
     values
-    #print(values)
+
   })
-  # output$ec_rc <- renderText({
-  #   values <- rc_depth_reinf()
-  #   rc_depth <- values$a
-  #   reinf_pm2 <- values$b
-  #   rc_concrete_co2_pm2 <- (((1*1*rc_depth/1000)*as.numeric(input$rc_concrete_density)) - reinf_pm2)*as.numeric(input$rc_concrete_co2)
-  #   rc_concrete_co2_pm2
-  #   # values <- rc_depth_reinf()
-  #   # rc_depth <- values$a
-  #   # rc_depth
-  #   #rc_reinf_co2_pm2 <- input$rc_reinf_co2*reinf__pm2
-  #   #rc_total_co2 <- rc_concrete_co2_pm2 + rc_reinf_co2_pm2
-  #   #return(rc_concrete_co2_pm2)
-  # })
+  
   
   
   # -------------- DRAW DONUT CHARTS FOR CO2 MATERIAL DISTRIBUTION  ------------
   
   # RC donut chart
   output$rc_donut <- renderPlot({
-    values <- co2_rc()
-    mass_c <- values$mass_c
-    mass_reinf <- values$mass_reinf
-    rc_concrete_co2_pm2 <- values$rc_concrete_co2_pm2
-    rc_reinf_co2_pm2 <- values$rc_reinf_co2_pm2
+    values <- all_depth_mass_co2()
+    mass_c <- values$rc_conc_mass
+    mass_reinf <- values$rc_reinf_mass
+    rc_concrete_co2_pm2 <- values$rc_conc_co2
+    rc_reinf_co2_pm2 <- values$rc_reinf_co2
     
     
     df <- data.frame(material = c("concrete","reinforcement"), mass = c(mass_c, mass_reinf), co2 = c(rc_concrete_co2_pm2,rc_reinf_co2_pm2))
@@ -410,11 +405,11 @@ server <- function(input, output, session) {
   
   # hollowcore donut chart
   output$hc_donut <- renderPlot({
-    values <- mass_hc()
-    rods_mass <- values$mass_kg_rods_pm2 
-    hc_mass <- values$mass_kg_hc 
-    rods_co2 <- as.numeric(input$hc_rods_co2)*rods_mass
-    hc_co2 <- as.numeric(input$hc_concrete_co2)*hc_mass
+    values <- all_depth_mass_co2()
+    rods_mass <- values$hc_rods_mass
+    hc_mass <- values$hc_conc_mass 
+    rods_co2 <- values$hc_rods_co2
+    hc_co2 <- values$hc_conc_co2
     
     df <- data.frame(material = c("concrete","tension rods"), mass = c(hc_mass, rods_mass), co2 = c(hc_co2,rods_co2))
     
@@ -475,11 +470,11 @@ server <- function(input, output, session) {
   #---------------- DONUTS FOR MASS DISTRIBUTION ----------------------------------
   # RC donut chart
   output$rc_mass_donut <- renderPlot({
-    values <- co2_rc()
-    mass_c <- values$mass_c
-    mass_reinf <- values$mass_reinf
-    rc_concrete_co2_pm2 <- values$rc_concrete_co2_pm2
-    rc_reinf_co2_pm2 <- values$rc_reinf_co2_pm2
+    values <- all_depth_mass_co2()
+    mass_c <- values$rc_conc_mass
+    mass_reinf <- values$rc_reinf_mass
+    rc_concrete_co2_pm2 <- values$rc_conc_co2
+    rc_reinf_co2_pm2 <- values$rc_reinf_co2
     
     
     df <- data.frame(material = c("concrete","reinforcement"), mass = c(mass_c, mass_reinf), co2 = c(rc_concrete_co2_pm2,rc_reinf_co2_pm2))
@@ -488,7 +483,7 @@ server <- function(input, output, session) {
       arrange(desc(material)) %>%
       mutate(lab.ypos_mass = cumsum(mass) - 0.5*mass)
     
-    mycols <- c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF")
+
     p <- ggplot(df, aes(x=2, y = mass, fill = material)) +
       geom_bar(stat = "identity", color = "white") +
       coord_polar(theta = "y", start = 0) +
@@ -505,11 +500,12 @@ server <- function(input, output, session) {
   
   # hollowcore donut chart
   output$hc_mass_donut <- renderPlot({
-    values <- mass_hc()
-    rods_mass <- values$mass_kg_rods_pm2 
-    hc_mass <- values$mass_kg_hc 
-    rods_co2 <- as.numeric(input$hc_rods_co2)*rods_mass
-    hc_co2 <- as.numeric(input$hc_concrete_co2)*hc_mass
+    values <- all_depth_mass_co2()
+    
+    rods_mass <- values$hc_rods_mass
+    hc_mass <- values$hc_conc_mass 
+    rods_co2 <- values$hc_rods_co2
+    hc_co2 <- values$hc_conc_co2
     
     df <- data.frame(material = c("concrete","tension rods"), mass = c(hc_mass, rods_mass), co2 = c(hc_co2,rods_co2))
     
@@ -518,7 +514,7 @@ server <- function(input, output, session) {
       mutate(lab.ypos_mass = cumsum(mass) - 0.5*mass)
     
     
-    mycols <- c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF")
+
     p <- ggplot(df, aes(x=2, y = mass, fill = material)) +
       geom_bar(stat = "identity", color = "white") +
       coord_polar(theta = "y", start = 0) +
@@ -549,7 +545,6 @@ server <- function(input, output, session) {
       mutate(lab.ypos_co2 = cumsum(mass) - 0.5*mass)
     
     
-    mycols <- c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF")
     p <- ggplot(df, aes(x=2, y = mass, fill = material)) +
       geom_bar(stat = "identity", color = "white") +
       coord_polar(theta = "y", start = 0) +
@@ -574,26 +569,26 @@ server <- function(input, output, session) {
   
   # RC depth value box
   output$rc_depth_value <- renderValueBox({
-    values <- rc_depth_reinf()
-    rc_depth <- round(values$a)
+    values <- all_depth_mass_co2()
+    rc_depth <- round(values$rc_depth)
     
     col_values <- conditional_colours()
     rc_depth_col <- col_values[[1]]
     
     valueBox(
-      paste(rc_depth), "mm deep", icon = icon("ffas fa-bars", lib = "font-awesome"),
+      paste(rc_depth), depth_vb_name, icon = icon("ffas fa-bars", lib = "font-awesome"),
       color = rc_depth_col)
   })
   
   # HC depth value box
   output$hc_depth_value <- renderValueBox({
-    hc_depth <- as.numeric(input$depth_hollowcore)
+    hc_depth <- as.numeric(input$depth_hollowcore) + as.numeric(input$topping_thickness)
     
     col_values <- conditional_colours()
     hc_depth_col <- col_values[[2]]
     
     valueBox(
-      paste(hc_depth), "mm deep", icon = icon("ffas fa-bars", lib = "font-awesome"),
+      paste(hc_depth), depth_vb_name, icon = icon("ffas fa-bars", lib = "font-awesome"),
       color = hc_depth_col)
   })
   
@@ -605,7 +600,7 @@ server <- function(input, output, session) {
     clt_depth_col <- col_values[[3]]
     
     valueBox(
-      paste(clt_depth), "mm deep", icon = icon("ffas fa-bars", lib = "font-awesome"),
+      paste(clt_depth), depth_vb_name, icon = icon("ffas fa-bars", lib = "font-awesome"),
       color = clt_depth_col)
   })
   
@@ -615,45 +610,41 @@ server <- function(input, output, session) {
   
   # RC depth value box
   output$rc_mass_value <- renderValueBox({
-    values_rc <- co2_rc()
-    mass_c <- values_rc$mass_c
-    mass_reinf <- values_rc$mass_reinf
-    rc_mass_total <- round(mass_c + mass_reinf)
+    values_rc <- all_depth_mass_co2()
+    rc_mass_total <- round(values_rc$rc_total_mass)
     
     col_values <- conditional_colours()
     rc_mass_col <- col_values[[4]]
     
     valueBox(
-      paste(rc_mass_total), "kg/m^2", icon = icon("ffas fa-toggle-down", lib = "font-awesome"),
+      paste(rc_mass_total), mass_vb_name, icon = icon("ffas fa-toggle-down", lib = "font-awesome"),
       color = rc_mass_col)
   })
   
   # HC depth value box
   output$hc_mass_value <- renderValueBox({
-    values_hc <- mass_hc()
-    hc_mass_total <- round(values_hc$total_hc_mass)
+    values <- all_depth_mass_co2()
+    hc_total_mass <- round(values$hc_total_mass)
     
     col_values <- conditional_colours()
     hc_mass_col <- col_values[[5]]
     
     valueBox(
-      paste(hc_mass_total), "kg/m^2", icon = icon("ffas fa-toggle-down", lib = "font-awesome"),
+      paste(hc_total_mass), mass_vb_name, icon = icon("ffas fa-toggle-down", lib = "font-awesome"),
       color = hc_mass_col)
   })
   
   # HC depth value box
   output$clt_mass_value <- renderValueBox({
-    depth_ <- as.numeric(input$depth_clt)
-    co2_<- as.numeric(input$clt_co2)
-    density_ <- as.numeric(input$clt_density)
-    clt_co2_pm2 <- round((1*1*depth_/1000)*co2_*density_)
-    mass_clt <- round((1*1*depth_/1000)*density_)
+    values <- all_depth_mass_co2()
+    clt_total_mass <- round(values$clt_total_mass)
+    
     
     col_values <- conditional_colours()
     clt_mass_col <- col_values[[6]]
     
     valueBox(
-      paste(mass_clt), "kg/m^2", icon = icon("ffas fa-toggle-down", lib = "font-awesome"),
+      paste(clt_total_mass), mass_vb_name, icon = icon("ffas fa-toggle-down", lib = "font-awesome"),
       color = clt_mass_col)
   })
   
@@ -664,45 +655,41 @@ server <- function(input, output, session) {
   
   # RC co2 value box
   output$rc_co2_value <- renderValueBox({
-    values <- co2_rc()
+    values <- all_depth_mass_co2()
     rc_total_co2 <- round(values$rc_total_co2)
     
     col_values <- conditional_colours()
     rc_co2_col <- col_values[[7]]
     
     valueBox(
-      paste(rc_total_co2), "kgCO2e/m^2", icon = icon("ffas fa-bar-chart-o", lib = "font-awesome"),
+      paste(rc_total_co2), co2_vb_name, icon = icon("ffas fa-bar-chart-o", lib = "font-awesome"),
       color = rc_co2_col)
   })
   
   # hollowcore co2 value box
   output$hc_co2_value <- renderValueBox({
-    values <- mass_hc()
-    mass_rods <- values$mass_kg_rods_pm2
-    mass_hc <- values$mass_kg_hc
+    values <- all_depth_mass_co2()
+    hc_total_co2 <- round(values$hc_total_co2)
     
-    co2_hc <- round(as.numeric(input$hc_concrete_co2)*mass_hc + as.numeric(input$hc_rods_co2)*mass_rods)
     
     col_values <- conditional_colours()
     hc_co2_col <- col_values[[8]]
     
     valueBox(
-      paste(co2_hc), "kgCO2e/m^2", icon = icon("ffas fa-bar-chart-o", lib = "font-awesome"),
+      paste(hc_total_co2), co2_vb_name, icon = icon("ffas fa-bar-chart-o", lib = "font-awesome"),
       color = hc_co2_col)
   })
   
   # clt co2 value box
   output$clt_co2_value <- renderValueBox({
-    depth_ <- as.numeric(input$depth_clt)
-    co2_<- as.numeric(input$clt_co2)
-    density_ <- as.numeric(input$clt_density)
-    clt_total_co2 <- round((1*1*depth_/1000)*co2_*density_)
+    values <- all_depth_mass_co2()
+    clt_total_co2 <- round(values$clt_total_co2)
     
     col_values <- conditional_colours()
     clt_co2_col <- col_values[[9]]
     
     valueBox(
-      paste(clt_total_co2), "kgCO2e/m^2", icon = icon("ffas fa-bar-chart-o", lib = "font-awesome"),
+      paste(clt_total_co2), co2_vb_name, icon = icon("ffas fa-bar-chart-o", lib = "font-awesome"),
       color = clt_co2_col)
   })
   
