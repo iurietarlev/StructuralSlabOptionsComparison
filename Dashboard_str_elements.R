@@ -53,13 +53,11 @@ mass_vb_name = "kg/m^2"
 mycols <- c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF")
 
 #UI PART OF THE SCRIPT
-ui <- dashboardPage(skin = "yellow", # yellow color of the header
-  dashboardHeader(title = "Structural Material Comparison", titleWidth = 350,
-                  tags$li(div(img(src = 'BH LOGO.pdf',
-                                  title = "Company Home", height = "40px"),
-                              style = "padding-top:5px; padding-bottom:5px;
-                              margin-right:5px;"),
-                          class = "dropdown")),  # title width and name
+ui <- dashboardPage(skin = "blue", # yellow color of the header
+  dashboardHeader(title = "Structural Slab Material Comparison", titleWidth = 350
+                  ),  # title width and name
+                       
+
     dashboardSidebar(width = 350,
       tags$style(HTML(".sidebar-menu li a { font-size: 20px; }",
                       " .skin-blue .sidebar-menu > li.active > a {
@@ -71,11 +69,10 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
         ) # close tags$style
         ), 
       sidebarMenu(
+        radioButtons(inputId="slab_type", label="RC slab type", choices=c(ss_ow_sb_text, ms_ow_sb_text, ms_flt_sb_text), 
+                     selected = ss_ow_sb_text),
         #----------------- number of iterations ----------------
-        menuItem(startExpanded = TRUE, text = tags$p(style = css_style_head,"Slab comparison"), tabName = "slab_comparison",
-                 radioButtons(inputId="slab_type", label="Select RC slab type", choices=c(ss_ow_sb_text, ms_ow_sb_text, ms_flt_sb_text), 
-                              selected = ss_ow_sb_text)
-        ),
+       
     
         
         #------------------ authors names and link to documentation ------------------
@@ -85,7 +82,7 @@ ui <- dashboardPage(skin = "yellow", # yellow color of the header
                  tags$a(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Author: Iurie Tarlev"))
                   ),
         tags$div(class="Header", checked=NA,
-                 tags$a(href="https://github.com/osk849/str_elements_comparison.git", HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Click here to access the documentation"))
+                 tags$a(href="https://github.com/osk849/str_elements_comparison.git", HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Click here to access source code"))
         ))
       ),
       
@@ -617,7 +614,7 @@ server <- function(input, output, session) {
     rc_mass_col <- col_values[[4]]
     
     valueBox(
-      paste(rc_mass_total), mass_vb_name, icon = icon("ffas fa-toggle-down", lib = "font-awesome"),
+      paste(rc_mass_total), mass_vb_name, icon = icon("ffas fa-layer-group", lib = "font-awesome"),
       color = rc_mass_col)
   })
   
@@ -630,7 +627,7 @@ server <- function(input, output, session) {
     hc_mass_col <- col_values[[5]]
     
     valueBox(
-      paste(hc_total_mass), mass_vb_name, icon = icon("ffas fa-toggle-down", lib = "font-awesome"),
+      paste(hc_total_mass), mass_vb_name, icon = icon("ffas fa-layer-group", lib = "font-awesome"),
       color = hc_mass_col)
   })
   
@@ -644,7 +641,7 @@ server <- function(input, output, session) {
     clt_mass_col <- col_values[[6]]
     
     valueBox(
-      paste(clt_total_mass), mass_vb_name, icon = icon("ffas fa-toggle-down", lib = "font-awesome"),
+      paste(clt_total_mass), mass_vb_name, icon = icon("ffas fa-layer-group", lib = "font-awesome"),
       color = clt_mass_col)
   })
   
@@ -662,7 +659,7 @@ server <- function(input, output, session) {
     rc_co2_col <- col_values[[7]]
     
     valueBox(
-      paste(rc_total_co2), co2_vb_name, icon = icon("ffas fa-bar-chart-o", lib = "font-awesome"),
+      paste(rc_total_co2), co2_vb_name, icon = icon("ffas fa-leaf", lib = "font-awesome"),
       color = rc_co2_col)
   })
   
@@ -676,7 +673,7 @@ server <- function(input, output, session) {
     hc_co2_col <- col_values[[8]]
     
     valueBox(
-      paste(hc_total_co2), co2_vb_name, icon = icon("ffas fa-bar-chart-o", lib = "font-awesome"),
+      paste(hc_total_co2), co2_vb_name, icon = icon("ffas fa-leaf", lib = "font-awesome"),
       color = hc_co2_col)
   })
   
@@ -689,7 +686,7 @@ server <- function(input, output, session) {
     clt_co2_col <- col_values[[9]]
     
     valueBox(
-      paste(clt_total_co2), co2_vb_name, icon = icon("ffas fa-bar-chart-o", lib = "font-awesome"),
+      paste(clt_total_co2), co2_vb_name, icon = icon("ffas fa-leaf", lib = "font-awesome"),
       color = clt_co2_col)
   })
   
