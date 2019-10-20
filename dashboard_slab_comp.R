@@ -5,17 +5,7 @@
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 #getwd()
 
-
-# INSTALL ALL THE REQUIRED PACKAGES
-# install.packages("shiny")
-# install.packages("pracma")
-# install.packages("shinydashboard")
-# install.packages("readxl")
-# install.packages("ggplot2")
-# install.packages("dplyr")
-
-
-# LOAD ALL THE REQUIRED LIBRARIES
+# --- LOAD ALL THE REQUIRED LIBRARIES --- #
 library(shiny)          #shiny allows tranlation of R script into HTML
 library(pracma)         #library for bi-linear interpolation fucntion
 library(shinydashboard, warn.conflicts = FALSE) #shiny dashboard builder
@@ -26,23 +16,17 @@ options(warn=-1) # turn warnings OFF, to turn them on type options(warn=0)
 
 
 
-#IMPORTING ALL THE NECESSARY FUNCTIONS CREATED IN ANOTHER FILE
-source("Functions_str_elements.R")
+# -- IMPORTING ALL THE NECESSARY FUNCTIONS CREATED IN ANOTHER FILE --- #
+source("functions_slab_comp.R")
 
-
-#SOME STYLING PARAMTERS
+# --- SOME STYLING PARAMTERS --- #
 css_style_head = "font-size: 20px; color: white" #font-weight: bold
 choice_label_rc <- "RC load-span table input type"
 choice_label_hollowcore <- "Hollowcore load-span table input type"
 choice_label_clt <- "CLT load-span table input type"
-
-#sidebarpanel_width = 12
-
-
 ss_ow_sb_text = "single span one way slab"
 ms_ow_sb_text = "multiple span one way slab"
 ms_flt_sb_text = "multiple span flat slab"
-
 
 #value boxes names
 depth_vb_name = "mm (total depth)"
@@ -52,7 +36,8 @@ mass_vb_name = "kg/m^2"
 #color scheme for the donut charts
 mycols <- c("#0073C2FF", "#EFC000FF", "#868686FF", "#CD534CFF")
 
-#UI PART OF THE SCRIPT
+
+# --- UI PART OF THE SCRIPT --- #
 ui <- dashboardPage(skin = "blue", # yellow color of the header
   dashboardHeader(title = "Structural Slab Material Comparison", titleWidth = 350
                   ),  # title width and name
@@ -71,18 +56,15 @@ ui <- dashboardPage(skin = "blue", # yellow color of the header
       sidebarMenu(
         radioButtons(inputId="slab_type", label="RC slab type", choices=c(ss_ow_sb_text, ms_ow_sb_text, ms_flt_sb_text), 
                      selected = ss_ow_sb_text),
-        #----------------- number of iterations ----------------
-       
-    
         
-        #------------------ authors names and link to documentation ------------------
+        #------------------ author name and link to source code ------------------
         h5(withMathJax("$$$$"), align = "left"), # create a gap between the formula and what's below
         h5(HTML("&nbsp;"), align = "left"),
         tags$div(class="Header", checked=NA,
                  tags$a(HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Author: Iurie Tarlev"))
                   ),
         tags$div(class="Header", checked=NA,
-                 tags$a(href="https://github.com/osk849/str_elements_comparison.git", HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Click here to access source code"))
+                 tags$a(href="https://github.com/iurietarlev/StructuralSlabOptionsComparison", HTML("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Click here to access source code"))
         ))
       ),
       
@@ -249,8 +231,6 @@ server <- function(input, output, session) {
   output$sdl_clt = renderText("1.0")
   
   
-  
-  
   # --------------------------------------------------------------------------
   # ----------------- LISTS OF DEPTH, MASS AND CO2 VALUES --------------------
   # --------------------------------------------------------------------------
@@ -368,8 +348,9 @@ server <- function(input, output, session) {
   })
   
   
-  
+  # ----------------------------------------------------------------------------
   # -------------- DRAW DONUT CHARTS FOR CO2 MATERIAL DISTRIBUTION  ------------
+  # ----------------------------------------------------------------------------
   
   # RC donut chart
   output$rc_donut <- renderPlot({
@@ -463,8 +444,10 @@ server <- function(input, output, session) {
     
   })
   
-  
+  # -------------------------------------------------------------------------------
   #---------------- DONUTS FOR MASS DISTRIBUTION ----------------------------------
+  # -------------------------------------------------------------------------------
+  
   # RC donut chart
   output$rc_mass_donut <- renderPlot({
     values <- all_depth_mass_co2()
@@ -689,10 +672,6 @@ server <- function(input, output, session) {
       paste(clt_total_co2), co2_vb_name, icon = icon("ffas fa-leaf", lib = "font-awesome"),
       color = clt_co2_col)
   })
-  
-  
-  
-  
 }
 
 # -------- > RUN THE APPLICATION < ---------- 

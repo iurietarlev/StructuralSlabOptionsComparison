@@ -1,11 +1,9 @@
-
-#rm(list=ls())
-
+# RStudio set wd to current folder
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 #getwd()
 
 
-#-------INTERPOLATION FUNCTION FOR EXCEL --------
+# ------- INTERPOLATION FUNCTION FOR EXCEL --------
 interp_bh <- function(excel_file_path,x_i,y_i,method_i){
   
   original_df <- read_excel(excel_file_path)
